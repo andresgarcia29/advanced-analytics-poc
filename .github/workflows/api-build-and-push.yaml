@@ -1,0 +1,47 @@
+name: api-build-and-push
+
+# We have many projects inside just one repository for this purpose, so to avoid deployments each time that a branch is
+# updated we are going to use manual triggers.
+on:
+  workflow_dispatch:
+
+jobs:
+  service-release:
+    name: Tagged Docker release to Google Artifact Registry
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: "read"
+      id-token: "write"
+
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v3
+
+      - id: "auth"
+        name: "Authenticate to Google Cloud"
+        uses: "google-github-actions/auth@v1"
+        with:
+          credentials_json: "${{ secrets.GCP_ARTIFACT_REGISTRY_SA }}"
+
+      - name: Login to Artifact Registry
+        uses: docker/login-action@v2.1.0
+        with:
+          registry: us-central1-docker.pkg.dev
+          username: _json_key
+          password: "${{ secrets.GCP_ARTIFACT_REGISTRY_SA }}"
+
+      - name: Get tag
+        id: get-tag
+        run: echo ::set-output name=short_ref::${GITHUB_SHA::7}
+
+      - id: docker-push-tagged
+        name: Tag Docker image and push to Google Artifact Registry
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          context: ./apps/api
+          tags: |
+            us-central1-docker.pkg.dev/hummy-app/analytics/api:${{ steps.get-tag.outputs.short_ref }}
+            us-central1-docker.pkg.dev/hummy-app/analytics/api:latest
