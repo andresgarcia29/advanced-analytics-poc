@@ -3,7 +3,7 @@ resource "google_bigquery_dataset" "analytics" {
   friendly_name               = var.dataset
   description                 = "This is a ${var.dataset} dataset."
   location                    = "EU"
-  default_table_expiration_ms = 3600000
+  default_table_expiration_ms = 3600000000
 
   labels = {
     env = var.environment
