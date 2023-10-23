@@ -8,7 +8,7 @@ services:
     working_dir: /app
     command: python main.py
     environment:
-      - RABBIT_MQ=amqps://omfawpop:bdrSH1Ulb6kfw4wmq3xQfzGHMMTB4brA@albatross.rmq.cloudamqp.com/omfawpop
+      - RABBIT_MQ=****
       - QUEUE_LISTENER_NAME=products.writer
     volumes:
       - ./:/app
